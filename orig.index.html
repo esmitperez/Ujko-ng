@@ -1,0 +1,127 @@
+<!doctype html>
+<!--
+Autor: Esmit Pérez 
+Twitter: @esmitperez
+Fecha: Sept 2013
+
+Copyright (c) 2013 Esmit Pérez (@esmiterez)
+http://www.apache.org/licenses/LICENSE-2.0
+-->
+
+<!-- http://dailyjs.com/2013/06/07/angular-svg/ -->
+<html ng-app="crmapa">
+<head>
+	<link rel="stylesheet" type="text/css" href="css/crmaps.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+	<script type="text/javascript" src="js/db.distritos.cr.js"></script>
+	<script type="text/javascript" src="js/db.js"></script>
+</head>
+
+<body>
+
+    <div  ng-controller="OtroController" >
+      <label>Name:</label>
+      <input type="text" ng-model="fill" placeholder="Enter a name here">
+      <hr>
+      <h1 class="filled">Hello {{fill}}!</h1>
+    </div>
+
+
+<div ng-controller="CRMapa" >
+
+<div>Provincia: {{provNombre}}</div>
+<div>Cant&oacute;n: {{cantonNombre}}</div>
+<div>Distrito: {{distNombre}}</div>
+
+
+      <label>Color:</label>
+      <input type="text" ng-model="fill"  placeholder="What color??">
+      <hr>
+      <h1 class="filled">Circle is {{fill}}!</h1>
+
+
+	<!--<span ng-include="'svg/bugs.svg'"></span>-->
+	<!---->
+<span ng-include="'svg/cr-low-res.svg'"></span>
+</div>
+
+	<script>
+angular.forEach(distritos_costa_rica,function(key,value){
+	sqlStore.save(distritos_costa_rica[value],null);
+	//$this.options.listaDistritos[value.cod] = value;
+	//$this._insertToTree(value.cod,value)
+});
+
+
+function OtroController($scope) {
+  $scope.fill='test'
+}
+
+
+angular.module('crmapa', [])
+.controller('CRMapa', ['$scope', function ($scope) {
+	$scope.fill='green'
+	$scope.provNombre='Prov No Enc'
+}])
+.directive('descriptionKml', function() {
+	return {
+		scope: {
+			data: '@descriptionKml', // reads attrib description_kml
+		},
+		restrict: "A",
+		link:function(scope, element, attrs, ctrl) {
+			var $parentScope = scope.$parent.$parent;
+			console.log($parentScope.provNombre);
+			element.bind("click", mostrarInfo);
+
+			element.bind("mouseover", function(e){    
+				//element.addClass('unfill').removeClass('filled');
+				element.css("color","#FFAA11");
+				element.css("fill","#FFAA11");
+				mostrarInfo(e);
+		       		});
+	
+			element.bind("mouseout", function(e){
+				//element.addClass('filled').removeClass('unfill');
+				element.css("color","#AAAAFF");
+				element.css("fill","#AAAAFF");
+		       		}); 
+
+			function mostrarInfo(e){    
+				var coddistValue = scope.data.split(",")[0];
+				console.log("coddistValue", coddistValue);
+				sqlStore.search(coddistValue,function(distritoEncontrado){
+					$parentScope.provNombre = distritoEncontrado.prov;
+					$parentScope.cantonNombre = distritoEncontrado.cant;
+					$parentScope.distNombre = distritoEncontrado.dist;
+
+					// digale al scope que se actualice.
+					$parentScope.$digest();
+				});
+				//console.log("results", datosDistrito);
+				
+			}
+
+			function cn1(n){
+				//alert(n.prov + "/" + n.cant + " / " + n.dist) 
+				//alert(n.dist + "xxx")
+				//scope.provNombre = n.prov;
+				//scope.actualizarDatos(n);
+				//ctrl.provNombre = "123";
+			} 
+
+		}
+	}	
+});
+
+
+
+// -----------------------------------------------------------------------------------
+
+
+
+
+//*/
+</script>
+  </body>
+</html>

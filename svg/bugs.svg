@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+
+<g transform="scale(0.80) translate(100,50)">
+	<circle cx="100" cy="50" r="40" stroke="black" stroke-width="2" fill="{{ fill }}"  />
+
+	<circle cx="100" cy="150" r="40" stroke="#fed987" stroke-width="1" fill="#abc123" description_kml="30204,3,2,4,30204,18611"/>
+
+<circle cx="10" cy="25" r="40" stroke="#fed987" stroke-width="1" fill="#abc123" description_kml="21004,2,10,4,21004,18611"/>
+
+	<path d="M250 0 L75 300 L225 300 Z"  stroke-width="1" stroke="red" description_kml="10102,1,1,2,10102,40898"/>
+
+
+	<text x="200" y="100" stroke-width="2" stroke="{{fill}}"  >
+	{{ fill }}
+	</text>	
+</g>
+</svg>

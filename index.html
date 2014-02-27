@@ -1,0 +1,252 @@
+<!doctype html>
+<!--
+Autor: Esmit Pérez
+Twitter: @esmitperez
+Fecha: Sept 2013
+
+Copyright (c) 2013 Esmit Pérez (@esmiterez)
+http://www.apache.org/licenses/LICENSE-2.0
+-->
+
+<!-- http://dailyjs.com/2013/06/07/angular-svg/ -->
+<html ng-app="crmapa">
+<head>
+	<link rel="stylesheet" type="text/css" href="css/crmaps.css">
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+	<script type="text/javascript" src="js/db.distritos.cr.js"></script>
+	<script type="text/javascript" src="js/sqlStore.js"></script>
+
+<!--	<script type="text/javascript" src="js/SVGPan.js"></script>-->
+</head>
+
+<body>
+
+<div ng-controller="CRMapa" >
+
+	<div>Provincia: {{provNombre}}</div>
+	<div>Cant&oacute;n: {{cantonNombre}}</div>
+	<div>Distrito: {{distNombre}}</div>
+
+	<!--<span ng-include="'svg/bugs.svg'"></span>-->
+	<!---->
+<button ng-click="pintarMapa({filtro:{lista:[2]}})">Pintar Al Azar</button>
+
+<span id="crmapasvg" ng-include="'svg/cr-ultralow-res.svg'"></span>
+
+</div>
+
+<script>
+
+// http://dailyjs.com/2013/06/07/angular-svg/
+// http://johnmunsch.github.io/AngularJSExamples/
+// http://bl.ocks.org/mbostock/2374239
+
+// "cargue" la db original y el sqlStore client side.
+angular.forEach(distritos_costa_rica,function(key,value){
+	sqlStore.save(distritos_costa_rica[value],null);
+});
+
+angular.module('crmapa', [])
+.controller('CRMapa', ['$scope', function ($scope) {
+	$scope.provNombre='';
+	$scope.cantonNombre='';
+	$scope.distNombre='';
+	$scope.arbolDistritos = {};
+
+	$scope.colores = ["#1AF161","#6F216C", "#F34B0D","#C50102", "#5DA537", "#F1D81B", "#A1D81B"];
+
+	$scope.mostrarInfo = function(data){
+		coddistValue = data.split(",")[0];
+		console.log("coddistValue "+ coddistValue);
+		sqlStore.search(coddistValue,function(distritoEncontrado){
+			$scope.provNombre = distritoEncontrado.prov;
+			$scope.cantonNombre = distritoEncontrado.cant;
+			$scope.distNombre = distritoEncontrado.dist;
+
+			// digale al scope que se actualice.
+			$scope.$apply(); // o $digest?
+		});
+	};
+
+	$scope.handleClick =function(data){
+		console.debug(data)
+	}
+
+	$scope.generarHash = function (id){
+		// 10102
+		// ^------ 0, get 1 = 1
+		//  ^----- 1, get 2 = 01
+		//    ^--- 3, get 2 = 02
+		console.debug(id);
+		pn = id.substr(0,1);
+		cn = id.substr(1,2);
+		dn = null;
+		if (id.length >= 3){
+			dn = id.substr(3,2);
+		}
+		hashKey = {p:pn,c:cn,d:dn};
+		//console.debug("hk="+JSON.stringify(hashKey));
+		return hashKey;
+	}
+
+	$scope.insertarEnArbol = function(id,obj){
+
+		id = id.split(",")[0]
+		idKey = $scope.generarHash(id+"");
+		var arbol = $scope.arbolDistritos;
+		console.debug(idKey);
+		if (arbol[idKey.p] == null){
+			arbol[idKey.p] = {};
+		}
+		if (arbol[idKey.p][idKey.c] == null){
+			arbol[idKey.p][idKey.c] = {};
+		}
+		arbol[idKey.p][idKey.c][idKey.d] = obj;
+		console.log(arbol);
+	}
+
+	$scope.buscarDistritos = function (filtro){
+
+		var resultados = {};
+		//alert($scope)
+		// recorra TODOS los distritos, y compare contra CADA distrito en lista filtro.
+		console.log("todos los distr"+JSON.stringify($scope));
+		angular.forEach($scope.arbolDistritos, function(provId,provincia){
+			angular.forEach(filtro.lista, function(key, value){
+				toCompare = $scope.generarHash(value+"");
+				console.debug("hash="+toCompare.p);
+
+				//pId = parseInt(provId,10);
+
+				angular.forEach($scope.arbolDistritos[toCompare.p],function(cantonId,canton){
+					if (toCompare.c == cantonId || toCompare.c == "" || toCompare.c == null){
+						angular.forEach(canton,function(distId,distrito){
+							if (toCompare.d == distId || toCompare.d == "" || toCompare.d == null){
+								resultados[distrito.cod] = distrito;
+							}
+						});
+					}
+				});
+
+			});
+
+		});
+
+		console.debug("resultados busqueda");
+		console.debug(resultados);
+
+		return resultados;
+	};
+
+	$scope.pintarMapa= function (fnOptions) {
+
+		// set up default options
+		var defaults = {
+			distritos:	{},
+			colorAlAzar: 	false,
+			colores: 	"red",
+			usarAnimacion: 	false,
+			filtro: {},
+		};
+
+		// Overwrite default options
+		// with user provided ones
+		// and merge them into "fnOptions".
+		//angular.extend(fnOptions,defaults);
+		fnOptions = $.extend({}, defaults, fnOptions);
+		console.log("extended options"+JSON.stringify(fnOptions));
+		//fnOptions = defaults;
+		if (! $.isEmptyObject(fnOptions.filtro)){
+			fnOptions.distritos = $scope.buscarDistritos(fnOptions.filtro);
+			console.log("!empty");
+			console.log(JSON.stringify(fnOptions.distritos))
+		}
+
+
+		if (fnOptions.usarAnimacion){
+			var lastItem = 0;
+			var keys = [];
+			for (var key in fnOptions.distritos) {
+				if (fnOptions.distritos.hasOwnProperty(key)){
+					keys.push(key)
+				};
+			}
+
+			console.debug("Usando animación");
+			function frame() {
+				color = fnOptions.colorAlAzar? $scope.colorAlAzar(): fnOptions.colores;
+				console.log(fnOptions.distritos[keys[lastItem]].cod);
+				//$(".dist_"+(fnOptions.distritos[keys[lastItem]].cod)).css('fill',color);
+				lastItem++;
+				if (lastItem >= keys.length)  // check finish condition
+					clearInterval(id)
+			}
+
+			if (keys.length>0){
+		       		var id = setInterval(frame, 5) // draw every 10ms
+			}
+
+		}else{
+			console.debug("Sin animación");
+
+			angular.forEach(fnOptions.distritos, function(distId,distrito){
+				console.log(fnOptions.distritos[keys[lastItem]].cod);
+			});
+
+			angular.forEach(fnOptions.distritos, function(distId,distrito){
+				var color = fnOptions.colorAlAzar? $scope.colorAlAzar(): fnOptions.colores;
+				console.log(fnOptions.distritos[keys[lastItem]].cod);
+				//$(".dist_"+(distrito.cod)).css('fill',color);
+			});
+		}
+	};
+
+	$scope.colorAlAzar = function (){
+		var pick = Math.floor(Math.random()*7);
+		return $scope.colores[pick];
+	};
+
+}])
+.directive('coddist', function($timeout) {
+	return {
+		scope: {
+			//data: '@descriptionKml', // lee el atributo description_kml del <path> en svg
+		},
+		restrict: "A",
+		link:{
+			pre: function (scope,element,a,c){
+				//var $parentScope = scope.$parent.$parent;
+				//alert(scope.data);
+				//console.log("pre"+angular.toJson(scope.$parent.$parent.$parent.data));
+			},
+			post: function (scope, element, attrs, ctrl) {
+				var $parentScope = scope.$parent.$parent;
+				// ERROR scope esta vacio
+
+				//alert(scope.data);
+				element.ready(function (){
+					$parentScope.insertarEnArbol(attrs.coddist, element);
+				});
+
+				element.on("click", function (e){
+					$parentScope.handleClick(attrs.coddist);
+				});
+
+				element.on("mouseover", function(e){
+					$parentScope.prevFill = element.css("fill");
+					element.css("fill","#FFFFFF");
+					$parentScope.mostrarInfo(attrs.coddist);
+			       	});
+
+				element.on("mouseout", function(e){
+					element.css("fill",$parentScope.prevFill);
+			       	});
+			}
+		} // link
+	} // return function
+});
+
+</script>
+</body>
+</html>
