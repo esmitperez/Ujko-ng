@@ -9,7 +9,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 -->
 
 <!-- http://dailyjs.com/2013/06/07/angular-svg/ -->
-<html ng-app="crmapa">
+<html ng-app="ujko">
 <head>
 	<link rel="stylesheet" type="text/css" href="css/crmaps.css">
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
@@ -22,11 +22,12 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 <body>
 
-<div ng-controller="CRMapa" >
+<div ng-controller="UjkoCR" >
 
 	<div>Provincia: {{provNombre}}</div>
 	<div>Cant&oacute;n: {{cantonNombre}}</div>
 	<div>Distrito: {{distNombre}}</div>
+    <div>C&oacute;digo: {{codigo}}</div>
 
 	<!--<span ng-include="'svg/bugs.svg'"></span>-->
 	<!---->
@@ -47,8 +48,8 @@ angular.forEach(distritos_costa_rica,function(key,value){
 	sqlStore.save(distritos_costa_rica[value],null);
 });
 
-angular.module('crmapa', [])
-.controller('CRMapa', ['$scope', function ($scope) {
+angular.module('ujko', [])
+.controller('UjkoCR', ['$scope', function ($scope) {
 	$scope.provNombre='';
 	$scope.cantonNombre='';
 	$scope.distNombre='';
@@ -63,6 +64,7 @@ angular.module('crmapa', [])
 			$scope.provNombre = distritoEncontrado.prov;
 			$scope.cantonNombre = distritoEncontrado.cant;
 			$scope.distNombre = distritoEncontrado.dist;
+            $scope.codigo = coddistValue;
 
 			// digale al scope que se actualice.
 			$scope.$apply(); // o $digest?
@@ -230,16 +232,26 @@ angular.module('crmapa', [])
 				});
 
 				element.on("click", function (e){
+                    if (attrs.coddist.substr(0,1) == "-"){
+                        return;
+                    }
+
 					$parentScope.handleClick(attrs.coddist);
 				});
 
 				element.on("mouseover", function(e){
+                    if (attrs.coddist.substr(0,1) == "-"){
+                        return;
+                    }
 					$parentScope.prevFill = element.css("fill");
-					element.css("fill","#FFFFFF");
+					element.css("fill","cornflowerblue");
 					$parentScope.mostrarInfo(attrs.coddist);
 			       	});
 
 				element.on("mouseout", function(e){
+                    if (attrs.coddist.substr(0,1) == "-"){
+                        return;
+                    }
 					element.css("fill",$parentScope.prevFill);
 			       	});
 			}

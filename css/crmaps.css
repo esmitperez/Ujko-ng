@@ -1,5 +1,5 @@
 /*
-Autor: Esmit Pérez 
+Autor: Esmit Pérez
 Twitter: @esmitperez
 Fecha: Jun 2013
 
@@ -10,35 +10,35 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 @import url(http://fonts.googleapis.com/css?family=Average+Sans|Alef);
 
-.mainCanvas {
-	fill: #38B0C0;
+.ujko-canvas {
+	fill: #A9CFFF;
 }
 
-.prov_1 {
-	fill: red;
+path[data-prov="1"] {
+	fill: #808080;
 }
 
-.prov_2 {
-	fill: blue;
+path[data-prov="2"] {
+	fill: #d4aa00;
 }
 
-.prov_3 {
-	fill: green;
+path[data-prov="3"] {
+	fill: #ffff81;
 }
 
-.prov_4 {
-	fill: yellow ;
+path[data-prov="4"] {
+	fill: #672178 ;
 }
 
-.prov_5 {
-	fill: orange;
+path[data-prov="5"] {
+	fill: #008000;
 }
 
-.prov_6 {
-	fill: purple;
+path[data-prov="6"] {
+	fill: #aa0000;
 }
 
-.prov_7 {
+path[data-prov="7"] {
 	fill: #759400;
 }
 
@@ -48,10 +48,10 @@ http://www.apache.org/licenses/LICENSE-2.0
 	stroke-width:20;
 	stroke-opacity:1;
 	fill-rule:evenodd;
-	
+
 }
 
-.distrito { 
+.distrito {
 	/*fill: #000;*/
 	fill-opacity: 1;
 	stroke:#DADADA;
@@ -60,8 +60,8 @@ http://www.apache.org/licenses/LICENSE-2.0
 	fill-rule:evenodd;
 }
 
-.canton_hover { 
-	fill: cornflowerblue; 
+.canton_hover {
+	fill: cornflowerblue;
 	stroke:1px;
 }
 
@@ -85,11 +85,11 @@ text
 {
 	font-family: 'Average Sans', sans-serif;
 	font-size:0.3rem;
-	fill:yellow;   
+	fill:yellow;
 	text-anchor:middle;
 	pointer-events:none;
 	dominant-baseline:middle;
 	baseline-shift=-30%;
 	visibility:hidden;
  }
- 
+
