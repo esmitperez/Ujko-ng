@@ -60,7 +60,7 @@ angular.module('ujko', [])
 // 21210,1212,1212,,121212,,1212
 	$scope.mostrarInfo = function(data){
 		coddistValue = data.split(",")[0];
-		console.log("coddistValue "+ coddistValue);
+		$log.debug("coddistValue "+ coddistValue);
 		sqlStore.search(coddistValue,function(distritoEncontrado){
 			$scope.provNombre = distritoEncontrado.prov;
 			$scope.cantonNombre = distritoEncontrado.cant;
@@ -106,7 +106,7 @@ angular.module('ujko', [])
 			arbol[idKey.p][idKey.c] = {};
 		}
 		arbol[idKey.p][idKey.c][idKey.d] = obj;
-		console.log(arbol);
+		$log.debug(arbol);
 	}
 
 	$scope.buscarDistritos = function (filtro){
@@ -114,7 +114,7 @@ angular.module('ujko', [])
 		var resultados = {};
 		//alert($scope)
 		// recorra TODOS los distritos, y compare contra CADA distrito en lista filtro.
-		//console.log("todos los distr"+JSON.stringify($scope));
+		//$log.debug("todos los distr"+JSON.stringify($scope));
 		angular.forEach($scope.arbolDistritos, function(provId,provincia){
 			angular.forEach(filtro.lista, function(key, value){
 				toCompare = $scope.generarHash(key+"");
@@ -144,7 +144,7 @@ angular.module('ujko', [])
 
 
 	$scope.pintarMapa= function (fnOptions) {
-        console.log("pintando mapa");
+        $log.debug("pintando mapa");
 		// set up default options
 		var defaults = {
 			distritos:	{},
@@ -159,12 +159,12 @@ angular.module('ujko', [])
 		// and merge them into "fnOptions".
 		//angular.extend(fnOptions,defaults);
 		fnOptions = $.extend({}, defaults, fnOptions);
-		//console.log("extended options"+JSON.stringify(fnOptions));
+		//$log.debug("extended options"+JSON.stringify(fnOptions));
 		//fnOptions = defaults;
 		if (! $.isEmptyObject(fnOptions.filtro)){
 			fnOptions.distritos = $scope.buscarDistritos(fnOptions.filtro);
-			console.log("!empty");
-			console.log(JSON.stringify(fnOptions.distritos))
+			$log.debug("!empty");
+			$log.debug(JSON.stringify(fnOptions.distritos))
 		}
 
 
@@ -180,7 +180,7 @@ angular.module('ujko', [])
 			$log.debug("Usando animación");
 			function frame() {
 				color = fnOptions.colorAlAzar? $scope.colorAlAzar(): fnOptions.colores;
-				console.log(fnOptions.distritos[keys[lastItem]].cod);
+				$log.debug(fnOptions.distritos[keys[lastItem]].cod);
 				//$(".dist_"+(fnOptions.distritos[keys[lastItem]].cod)).css('fill',color);
 				lastItem++;
 				if (lastItem >= keys.length)  // check finish condition
@@ -195,12 +195,12 @@ angular.module('ujko', [])
 			$log.debug("Sin animación");
 
 			angular.forEach(fnOptions.distritos, function(distId,distrito){
-				console.log(fnOptions.distritos[keys[lastItem]].cod);
+				$log.debug(fnOptions.distritos[keys[lastItem]].cod);
 			});
 
 			angular.forEach(fnOptions.distritos, function(distId,distrito){
 				var color = fnOptions.colorAlAzar? $scope.colorAlAzar(): fnOptions.colores;
-				console.log(fnOptions.distritos[keys[lastItem]].cod);
+				$log.debug(fnOptions.distritos[keys[lastItem]].cod);
 				//$(".dist_"+(distrito.cod)).css('fill',color);
 			});
 		}
@@ -212,6 +212,70 @@ angular.module('ujko', [])
 	};
 
 }])
+
+// inspired in http://www.petercollingridge.co.uk/interactive-svg-components/pan-and-zoom-control
+.directive('g', function($log){
+	return {
+		restrict:"E",
+		controller: function($scope, $log){
+			$scope.transMatrix = [1,0,0,1,0,0];
+			$scope.elem = null;
+			
+			$scope.pan = function (e, dx, dy)
+			{     	
+
+				$scope.transMatrix[4] += dx;
+			  	$scope.transMatrix[5] += dy;
+			            
+			  	$scope.att["transform"] = "matrix(" +  $scope.transMatrix.join(' ') + ")";
+			  	$log.debug(e);
+			  	e.setAttributeNS(null, "transform",  $scope.att["transform"])
+
+			};
+
+			$scope.zoom = function (e, scale)
+			{
+			  for (var i=0; i<$scope.transMatrix.length; i++)
+			  {
+			    $scope.transMatrix[i] *= scale;
+			  }
+
+			  $scope.transMatrix[4] += (1-scale)* $scope.width/2;
+			  $scope.transMatrix[5] += (1-scale)* $scope.height/2;
+					        
+			  $scope.att["transform"] = "matrix(" +  $scope.transMatrix.join(' ') + ")";
+
+			  e.setAttributeNS(null, "transform",  $scope.att["transform"])
+
+			}
+		},
+		link:{
+			post: function(scope,element,attrs,ctrl){
+				var $parentScope = scope.$parent.$parent;
+				attrs["transform"] = "matrix(1 0 0 1 0 0)";
+				//$log.debug(attrs)
+				scope.att = attrs;
+				scope.elem = element;
+
+				//mapMatrix = svgDoc.getElementById("map-matrix");
+			    scope.width  = 1000;
+			    scope.height = 967;
+
+				element.on("click", function(e){
+					$log.debug(attrs)
+					//scope.pan(e.currentTarget,-50,0);
+					scope.zoom(e.currentTarget,3.0)
+				})
+
+				element.on("mouseout", function(e){
+					$log.debug(attrs)
+					//scope.pan(e.currentTarget,0,50);
+					//scope.zoom(e.currentTarget,0.8)
+				})
+			}
+		}
+	}
+})
 .directive('coddist', function($timeout) {
 	return {
 		scope: {
@@ -222,7 +286,7 @@ angular.module('ujko', [])
 			pre: function (scope,element,a,c){
 				//var $parentScope = scope.$parent.$parent;
 				//alert(scope.data);
-				//console.log("pre"+angular.toJson(scope.$parent.$parent.$parent.data));
+				//$log.debug("pre"+angular.toJson(scope.$parent.$parent.$parent.data));
 			},
 			post: function (scope, element, attrs, ctrl) {
 				var $parentScope = scope.$parent.$parent;
@@ -260,6 +324,8 @@ angular.module('ujko', [])
 		} // link
 	} // return function
 });
+
+
 
 </script>
 </body>
