@@ -13,7 +13,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 <head>
 	<link rel="stylesheet" type="text/css" href="css/crmaps.css">
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
 	<script type="text/javascript" src="js/db.distritos.cr.js"></script>
 	<script type="text/javascript" src="js/sqlStore.js"></script>
 
@@ -42,6 +42,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 // http://dailyjs.com/2013/06/07/angular-svg/
 // http://johnmunsch.github.io/AngularJSExamples/
 // http://bl.ocks.org/mbostock/2374239
+// http://www.petercollingridge.co.uk/interactive-svg-components/pan-and-zoom-control
 
 // "cargue" la db original y el sqlStore client side.
 angular.forEach(distritos_costa_rica,function(key,value){
@@ -49,7 +50,7 @@ angular.forEach(distritos_costa_rica,function(key,value){
 });
 
 angular.module('ujko', [])
-.controller('UjkoCR', ['$scope', function ($scope) {
+.controller('UjkoCR', ['$scope', '$log', function ($scope, $log) {
 	$scope.provNombre='';
 	$scope.cantonNombre='';
 	$scope.distNombre='';
@@ -72,7 +73,7 @@ angular.module('ujko', [])
 	};
 
 	$scope.handleClick =function(data){
-		console.debug(data)
+		$log.debug(data)
 	}
 
 	$scope.generarHash = function (id){
@@ -80,7 +81,7 @@ angular.module('ujko', [])
 		// ^------ 0, get 1 = 1
 		//  ^----- 1, get 2 = 01
 		//    ^--- 3, get 2 = 02
-		console.debug(id);
+		$log.debug(id);
 		pn = id.substr(0,1);
 		cn = id.substr(1,2);
 		dn = null;
@@ -88,7 +89,7 @@ angular.module('ujko', [])
 			dn = id.substr(3,2);
 		}
 		hashKey = {p:pn,c:cn,d:dn};
-		//console.debug("hk="+JSON.stringify(hashKey));
+		//$log.debug("hk="+JSON.stringify(hashKey));
 		return hashKey;
 	}
 
@@ -97,7 +98,7 @@ angular.module('ujko', [])
 		id = id.split(",")[0]
 		idKey = $scope.generarHash(id+"");
 		var arbol = $scope.arbolDistritos;
-		console.debug(idKey);
+		$log.debug(idKey);
 		if (arbol[idKey.p] == null){
 			arbol[idKey.p] = {};
 		}
@@ -117,7 +118,7 @@ angular.module('ujko', [])
 		angular.forEach($scope.arbolDistritos, function(provId,provincia){
 			angular.forEach(filtro.lista, function(key, value){
 				toCompare = $scope.generarHash(key+"");
-				console.debug("hash="+toCompare.p);
+				$log.debug("hash="+toCompare.p);
 
 				//pId = parseInt(provId,10);
 
@@ -135,8 +136,8 @@ angular.module('ujko', [])
 
 		});
 
-		console.debug("resultados busqueda");
-		console.debug(resultados);
+		$log.debug("resultados busqueda");
+		$log.debug(resultados);
 
 		return resultados;
 	};
@@ -176,7 +177,7 @@ angular.module('ujko', [])
 				};
 			}
 
-			console.debug("Usando animación");
+			$log.debug("Usando animación");
 			function frame() {
 				color = fnOptions.colorAlAzar? $scope.colorAlAzar(): fnOptions.colores;
 				console.log(fnOptions.distritos[keys[lastItem]].cod);
@@ -191,7 +192,7 @@ angular.module('ujko', [])
 			}
 
 		}else{
-			console.debug("Sin animación");
+			$log.debug("Sin animación");
 
 			angular.forEach(fnOptions.distritos, function(distId,distrito){
 				console.log(fnOptions.distritos[keys[lastItem]].cod);
@@ -237,7 +238,7 @@ angular.module('ujko', [])
                         return;
                     }
 
-					$parentScope.handleClick(attrs.coddist);
+					$parentScope.handleClick(element);
 				});
 
 				element.on("mouseover", function(e){
