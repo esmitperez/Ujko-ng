@@ -11,11 +11,30 @@ http://www.apache.org/licenses/LICENSE-2.0
 <!-- http://dailyjs.com/2013/06/07/angular-svg/ -->
 <html ng-app="ujko">
 <head>
-	<link rel="stylesheet" type="text/css" href="css/crmaps.css">
-	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+	
+
+
+<link rel="stylesheet" type="text/css" href="css/crmaps.css">
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
 	<script type="text/javascript" src="js/db.distritos.cr.js"></script>
 	<script type="text/javascript" src="js/sqlStore.js"></script>
+
+
+	<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+
+    <script src="js/ui-bootstrap-tpls-0.11.0.min.js"></script>
 
 <!--	<script type="text/javascript" src="js/SVGPan.js"></script>-->
 </head>
@@ -31,7 +50,8 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 	<!--<span ng-include="'svg/bugs.svg'"></span>-->
 	<!---->
-<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:true, filtro:{lista:['2']}})">Pintar Al Azar</button>
+<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:true, filtro:{lista:['201','407']}})">Pintar Al Azar</button>
+<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:false, colores:['yellow'], filtro:{lista:['5','7']}})">Pintar Al Azar</button>
 <br>
 <span id="crmapasvg" ng-include="'svg/cr-ultralow-res.svg'"></span>
 
@@ -42,14 +62,14 @@ http://www.apache.org/licenses/LICENSE-2.0
 // http://dailyjs.com/2013/06/07/angular-svg/
 // http://johnmunsch.github.io/AngularJSExamples/
 // http://bl.ocks.org/mbostock/2374239
-// http://www.petercollingridge.co.uk/interactive-svg-components/pan-and-zoom-control
+// 
 
 // "cargue" la db original y el sqlStore client side.
 angular.forEach(distritos_costa_rica,function(key,value){
 	sqlStore.save(distritos_costa_rica[value],null);
 });
 
-angular.module('ujko', [])
+angular.module('ujko', ['ui.bootstrap'])
 .controller('UjkoCR', ['$scope', '$log', function ($scope, $log) {
 	$scope.provNombre='';
 	$scope.cantonNombre='';
@@ -60,7 +80,7 @@ angular.module('ujko', [])
 // 21210,1212,1212,,121212,,1212
 	$scope.mostrarInfo = function(data){
 		coddistValue = data.split(",")[0];
-		$log.debug("coddistValue "+ coddistValue);
+		//$log.debug("coddistValue "+ coddistValue);
 		sqlStore.search(coddistValue,function(distritoEncontrado){
 			$scope.provNombre = distritoEncontrado.prov;
 			$scope.cantonNombre = distritoEncontrado.cant;
@@ -73,7 +93,7 @@ angular.module('ujko', [])
 	};
 
 	$scope.handleClick =function(data){
-		$log.debug(data)
+		//$log.debug(data)
 	}
 
 	$scope.generarHash = function (id){
@@ -81,7 +101,7 @@ angular.module('ujko', [])
 		// ^------ 0, get 1 = 1
 		//  ^----- 1, get 2 = 01
 		//    ^--- 3, get 2 = 02
-		$log.debug(id);
+		//$log.debug(id);
 		pn = id.substr(0,1);
 		cn = id.substr(1,2);
 		dn = null;
@@ -89,7 +109,7 @@ angular.module('ujko', [])
 			dn = id.substr(3,2);
 		}
 		hashKey = {p:pn,c:cn,d:dn};
-		//$log.debug("hk="+JSON.stringify(hashKey));
+		////$log.debug("hk="+JSON.stringify(hashKey));
 		return hashKey;
 	}
 
@@ -98,7 +118,7 @@ angular.module('ujko', [])
 		id = id.split(",")[0]
 		idKey = $scope.generarHash(id+"");
 		var arbol = $scope.arbolDistritos;
-		$log.debug(idKey);
+		//$log.debug(idKey);
 		if (arbol[idKey.p] == null){
 			arbol[idKey.p] = {};
 		}
@@ -106,7 +126,7 @@ angular.module('ujko', [])
 			arbol[idKey.p][idKey.c] = {};
 		}
 		arbol[idKey.p][idKey.c][idKey.d] = obj;
-		$log.debug(arbol);
+		//$log.debug(arbol);
 	}
 
 	$scope.buscarDistritos = function (filtro){
@@ -114,19 +134,28 @@ angular.module('ujko', [])
 		var resultados = {};
 		//alert($scope)
 		// recorra TODOS los distritos, y compare contra CADA distrito en lista filtro.
-		//$log.debug("todos los distr"+JSON.stringify($scope));
+		////$log.debug("todos los distr"+JSON.stringify($scope));
 		angular.forEach($scope.arbolDistritos, function(provId,provincia){
 			angular.forEach(filtro.lista, function(key, value){
 				toCompare = $scope.generarHash(key+"");
-				$log.debug("hash="+toCompare.p);
+				//$log.debug("hash p c d=",toCompare);
 
 				//pId = parseInt(provId,10);
 
-				angular.forEach($scope.arbolDistritos[toCompare.p],function(cantonId,canton){
+				angular.forEach($scope.arbolDistritos[toCompare.p],function(canton,cantonId){
+					////$log.debug("evaluando canton", cantonId);
 					if (toCompare.c == cantonId || toCompare.c == "" || toCompare.c == null){
-						angular.forEach(canton,function(distId,distrito){
+						angular.forEach(canton,function(distrito,distId){
+							var coddist = distrito.context.dataset.coddist;
+							////$log.debug("evaluando distrito", coddist);
 							if (toCompare.d == distId || toCompare.d == "" || toCompare.d == null){
-								resultados[distrito.cod] = distrito;
+								if (!resultados[coddist]){
+									resultados[coddist] = [];
+								}else{
+									//$log.debug("coddist existe", coddist, resultados[coddist].length);
+								}
+								resultados[coddist].push(distrito.context);
+								//$log.debug("Distrito agregado", coddist, resultados[coddist].length);
 							}
 						});
 					}
@@ -136,15 +165,15 @@ angular.module('ujko', [])
 
 		});
 
-		$log.debug("resultados busqueda");
-		$log.debug(resultados);
+		//$log.debug("resultados busqueda");
+		//$log.debug(resultados);
 
 		return resultados;
 	};
 
 
 	$scope.pintarMapa= function (fnOptions) {
-        $log.debug("pintando mapa");
+        //$log.debug("pintando mapa");
 		// set up default options
 		var defaults = {
 			distritos:	{},
@@ -159,12 +188,12 @@ angular.module('ujko', [])
 		// and merge them into "fnOptions".
 		//angular.extend(fnOptions,defaults);
 		fnOptions = $.extend({}, defaults, fnOptions);
-		//$log.debug("extended options"+JSON.stringify(fnOptions));
+		////$log.debug("extended options"+JSON.stringify(fnOptions));
 		//fnOptions = defaults;
 		if (! $.isEmptyObject(fnOptions.filtro)){
 			fnOptions.distritos = $scope.buscarDistritos(fnOptions.filtro);
-			$log.debug("!empty");
-			$log.debug(JSON.stringify(fnOptions.distritos))
+			//$log.debug("!empty",fnOptions);
+			////$log.debug(JSON.stringify(fnOptions.distritos))
 		}
 
 
@@ -177,32 +206,61 @@ angular.module('ujko', [])
 				};
 			}
 
+			$log.debug("Keys length", keys.length);
+
 			$log.debug("Usando animación");
+			
 			function frame() {
 				color = fnOptions.colorAlAzar? $scope.colorAlAzar(): fnOptions.colores;
-				$log.debug(fnOptions.distritos[keys[lastItem]].cod);
-				//$(".dist_"+(fnOptions.distritos[keys[lastItem]].cod)).css('fill',color);
+				////$log.debug("District object", fnOptions.distritos[keys[lastItem]]);
+				
+
+				var paths = $(fnOptions.distritos[keys[lastItem]]);
+				
+				$log.debug("Paths length", paths.length)
+
+				if (paths.length > 1){
+					$log.debug("Length > 1", paths)
+					for(i=0;i<paths.length;i++){
+						$log.debug("Pintando ", paths[i]);
+						$log.debug("...")
+						 paths[i].css('fill',color);
+					}
+
+					//angular.forEach(paths,function(o,k){
+						//$log.debug(o)
+						//o.css('fill',color);
+					//})
+				}else{
+					$log.debug(paths);
+					//paths.css('fill',color);
+				}
+
+				
+				//$(".dist_"+(fnOptions.distritos[keys[lastItem]])).css('fill',color);
 				lastItem++;
-				if (lastItem >= keys.length)  // check finish condition
+				if (lastItem >= keys.length )  // check finish condition
 					clearInterval(id)
 			}
-
+			
 			if (keys.length>0){
-		       		var id = setInterval(frame, 5) // draw every 10ms
+				$log.debug("Starting animation")
+		       	var id = setInterval(frame, 5) // draw every 10ms
 			}
+			
 
 		}else{
-			$log.debug("Sin animación");
+			//$log.debug("Sin animación");
 
-			angular.forEach(fnOptions.distritos, function(distId,distrito){
-				$log.debug(fnOptions.distritos[keys[lastItem]].cod);
-			});
+			//angular.forEach(fnOptions.distritos, function(distId,distrito){
+				//$log.debug(fnOptions.distritos[keys[lastItem]]);
+			//});
 
-			angular.forEach(fnOptions.distritos, function(distId,distrito){
-				var color = fnOptions.colorAlAzar? $scope.colorAlAzar(): fnOptions.colores;
-				$log.debug(fnOptions.distritos[keys[lastItem]].cod);
+			//angular.forEach(fnOptions.distritos, function(distId,distrito){
+			//	var color = fnOptions.colorAlAzar? $scope.colorAlAzar(): fnOptions.colores;
+				//$log.debug(fnOptions.distritos[keys[lastItem]]);
 				//$(".dist_"+(distrito.cod)).css('fill',color);
-			});
+			//});
 		}
 	};
 
@@ -228,7 +286,7 @@ angular.module('ujko', [])
 			  	$scope.transMatrix[5] += dy;
 			            
 			  	$scope.att["transform"] = "matrix(" +  $scope.transMatrix.join(' ') + ")";
-			  	$log.debug(e);
+			  	//$log.debug(e);
 			  	e.setAttributeNS(null, "transform",  $scope.att["transform"])
 
 			};
@@ -252,23 +310,26 @@ angular.module('ujko', [])
 		link:{
 			post: function(scope,element,attrs,ctrl){
 				var $parentScope = scope.$parent.$parent;
+
+				// modificamos el mapa para que "entienda" matrix zoom/pan
 				attrs["transform"] = "matrix(1 0 0 1 0 0)";
-				//$log.debug(attrs)
+				////$log.debug(attrs)
 				scope.att = attrs;
 				scope.elem = element;
+				//$log.debug("Attached 'g' directive to element", element.context.id);
 
 				//mapMatrix = svgDoc.getElementById("map-matrix");
 			    scope.width  = 1000;
 			    scope.height = 967;
 
 				element.on("click", function(e){
-					$log.debug(attrs)
+					//$log.debug("CLICK CLICK",e.currentTarget, attrs);
 					//scope.pan(e.currentTarget,-50,0);
 					scope.zoom(e.currentTarget,3.0)
 				})
 
 				element.on("mouseout", function(e){
-					$log.debug(attrs)
+					//$log.debug(attrs)
 					//scope.pan(e.currentTarget,0,50);
 					//scope.zoom(e.currentTarget,0.8)
 				})
@@ -276,7 +337,7 @@ angular.module('ujko', [])
 		}
 	}
 })
-.directive('coddist', function($timeout) {
+.directive('coddist', function($timeout, $log) {
 	return {
 		scope: {
 			//data: '@descriptionKml', // lee el atributo description_kml del <path> en svg
@@ -286,9 +347,11 @@ angular.module('ujko', [])
 			pre: function (scope,element,a,c){
 				//var $parentScope = scope.$parent.$parent;
 				//alert(scope.data);
-				//$log.debug("pre"+angular.toJson(scope.$parent.$parent.$parent.data));
+				////$log.debug("pre"+angular.toJson(scope.$parent.$parent.$parent.data));
 			},
 			post: function (scope, element, attrs, ctrl) {
+
+
 				var $parentScope = scope.$parent.$parent;
 				// ERROR scope esta vacio
 
@@ -311,8 +374,19 @@ angular.module('ujko', [])
                     }
 					$parentScope.prevFill = element.css("fill");
 					element.css("fill","cornflowerblue");
-					$parentScope.mostrarInfo(attrs.coddist);
-			       	});
+					var info = $parentScope.mostrarInfo(attrs.coddist);
+
+					//$log.debug("Tooltip",info);
+
+					sqlStore.search(coddistValue,function(distritoEncontrado){
+						attrs["tooltip"] = info;
+
+						// digale al scope que se actualice.
+						//$scope.$apply(); // o $digest?
+					});
+					
+
+			    });
 
 				element.on("mouseout", function(e){
                     if (attrs.coddist.substr(0,1) == "-"){
