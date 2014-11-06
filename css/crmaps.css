@@ -15,31 +15,31 @@ http://www.apache.org/licenses/LICENSE-2.0
 }
 
 path[data-prov="1"] {
-	fill: #808080;
+	fill: #79C757;
 }
 
 path[data-prov="2"] {
-	fill: #d4aa00;
+	fill: #BA54B6;
 }
 
 path[data-prov="3"] {
-	fill: #ffff81;
+	fill: #504539;
 }
 
 path[data-prov="4"] {
-	fill: #672178 ;
+	fill: #95C0B2 ;
 }
 
 path[data-prov="5"] {
-	fill: #008000;
+	fill: #C1524C;
 }
 
 path[data-prov="6"] {
-	fill: #aa0000;
+	fill: #C3A74C;
 }
 
 path[data-prov="7"] {
-	fill: #759400;
+	fill: #7F76AD;
 }
 
 .isla_coco {
