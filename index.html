@@ -50,8 +50,10 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 	<!--<span ng-include="'svg/bugs.svg'"></span>-->
 	<!---->
-<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:true, filtro:{lista:['201','407']}})">Pintar Al Azar</button>
-<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:false, colores:['yellow'], filtro:{lista:['5','7']}})">Pintar Al Azar</button>
+<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:false, colores:['blue'], filtro:{lista:['1','2','3','4','5','6','7']}})">Provincias</button>
+<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:true, filtro:{lista:['201','407', '509']}})">Cantones</button>
+<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:false, colores:['red'], filtro:{lista:['50502','50204', '51104']}})">Distritos</button>
+
 <br>
 <span id="crmapasvg" ng-include="'svg/cr-ultralow-res.svg'"></span>
 
@@ -137,7 +139,7 @@ angular.module('ujko', ['ui.bootstrap'])
 		////$log.debug("todos los distr"+JSON.stringify($scope));
 		angular.forEach($scope.arbolDistritos, function(provId,provincia){
 			angular.forEach(filtro.lista, function(key, value){
-				toCompare = $scope.generarHash(key+"");
+				toCompare = $scope.generarHash(key+""); // make it string
 				//$log.debug("hash p c d=",toCompare);
 
 				//pId = parseInt(provId,10);
@@ -154,7 +156,7 @@ angular.module('ujko', ['ui.bootstrap'])
 								}else{
 									//$log.debug("coddist existe", coddist, resultados[coddist].length);
 								}
-								resultados[coddist].push(distrito.context);
+								resultados[coddist].push(distrito); // distrito = element HTML
 								//$log.debug("Distrito agregado", coddist, resultados[coddist].length);
 							}
 						});
@@ -214,17 +216,17 @@ angular.module('ujko', ['ui.bootstrap'])
 				color = fnOptions.colorAlAzar? $scope.colorAlAzar(): fnOptions.colores;
 				////$log.debug("District object", fnOptions.distritos[keys[lastItem]]);
 				
-
+				// does NOT retrieve multi shape districts, such as 30510 which has 2+
 				var paths = $(fnOptions.distritos[keys[lastItem]]);
 				
-				$log.debug("Paths length", paths.length)
+				//$log.debug("Paths length", paths.length)
 
 				if (paths.length > 1){
-					$log.debug("Length > 1", paths)
+					//$log.debug("Length > 1", paths)
 					for(i=0;i<paths.length;i++){
-						$log.debug("Pintando ", paths[i]);
-						$log.debug("...")
-						 paths[i].css('fill',color);
+						//$log.debug("Pintando ", paths[i]);
+						//$log.debug("...")
+						paths[i].css('fill',color);
 					}
 
 					//angular.forEach(paths,function(o,k){
@@ -232,7 +234,7 @@ angular.module('ujko', ['ui.bootstrap'])
 						//o.css('fill',color);
 					//})
 				}else{
-					$log.debug(paths);
+					//$log.debug(paths);
 					//paths.css('fill',color);
 				}
 
