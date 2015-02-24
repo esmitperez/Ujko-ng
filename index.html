@@ -26,6 +26,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 	<!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link href="css/sticky-footer-navbar.css" rel="stylesheet">
 
 <!-- Optional theme -->
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
@@ -43,21 +44,45 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 <div ng-controller="UjkoCR" >
 
-	<div>Provincia: {{provNombre}}</div>
-	<div>Cant&oacute;n: {{cantonNombre}}</div>
-	<div>Distrito: {{distNombre}}</div>
-    <div>C&oacute;digo: {{codigo}}</div>
+<!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+			<h1 class="tiquiTitle">Tiqui Mapa</h1>
 
-	<!--<span ng-include="'svg/bugs.svg'"></span>-->
-	<!---->
-<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:false, colores:['blue'], filtro:{lista:['6']}})">Provincias</button>
-<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:false, colores:['red'], filtro:{lista:['101']}})">Cantones</button>
-<button ng-click="pintarMapa({usarAnimacion:true,colorAlAzar:false, colores:['red'], filtro:{lista:['119','603', '608']}})">Distritos</button>
+			<div class="infoBox">
+	<p ng-show="codigo">
+		<span><strong>Provincia</strong>: {{provNombre}}</span>
+		<span><strong>Cant&oacute;n</strong>: {{cantonNombre}}</span>
+		<span><strong>Distrito</strong>: {{distNombre}}</span>
+	    <span><strong>C&oacute;digo</strong>: {{codigo}}</span>
+	</p></div>
 
-<br>
-<span id="crmapasvg" ng-include="'svg/cr-ultralow-res.svg'"></span>
+		</div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+	<div class="container" style="padding:180px">
+		<!--<span ng-include="'svg/bugs.svg'"></span>-->
+		<!---->
+		<input ng-model="distList" type="input" size="50">
+	<button ng-click="pintarMapa(getDistList())">Realzar</button>
+	<ul>
+		<li>Escriba una lista de códigos de provincia, cantón y/o distrinto, por ejemplo: 7,101,10901,5</li>
+		<li>O dé click sobre el distrito deseado para crear la lista dinámicamente</li>
+	</ul>
+
+	<br>
+	<span id="crmapasvg" ng-include="'svg/cr-ultralow-res.svg'"></span>
+
+	</div>
+
+<footer class="footer">
+	
+</footer>
 
 </div>
+
 
 <script>
 
@@ -94,8 +119,30 @@ angular.module('ujko', ['ui.bootstrap'])
 		});
 	};
 
+	$scope.getDistList = function(){
+		var s = $scope.distList + ""
+		//alert(); return;
+		return {
+				usarAnimacion:true,
+				colorAlAzar:false, 
+				colores:['#9ebcda'], 
+				filtro:{lista:s.split(",") } //['119','603', '608']}
+			}
+		;
+	}
+
 	$scope.handleClick =function(data){
 		//$log.debug(data)
+		//$log.debug("CLICK CLICK",data);
+		var orig = $scope.distList;
+		if(orig == undefined){
+			$scope.distList = data;
+		}else{
+			var arr = (orig+"").split(",");
+			arr[arr.length] = data;
+			$scope.distList = arr.join(",");
+		}
+	
 	}
 
 	$scope.generarHash = function (id){
@@ -325,9 +372,10 @@ angular.module('ujko', ['ui.bootstrap'])
 			    scope.height = 967;
 
 				element.on("click", function(e){
-					//$log.debug("CLICK CLICK",e.currentTarget, attrs);
+					//$log.debug("CLICK CLICK",e.currentTarget, attrs.coddist);
 					//scope.pan(e.currentTarget,-50,0);
-					scope.zoom(e.currentTarget,3.0)
+					//scope.zoom(e.currentTarget,3.0)
+					//alert(attrs)
 				})
 
 				element.on("mouseout", function(e){
@@ -367,7 +415,8 @@ angular.module('ujko', ['ui.bootstrap'])
                         return;
                     }
 
-					$parentScope.handleClick(element);
+					$parentScope.handleClick(attrs.coddist);
+					$parentScope.$apply();
 				});
 
 				element.on("mouseover", function(e){

@@ -9,6 +9,22 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 
 @import url(http://fonts.googleapis.com/css?family=Average+Sans|Alef);
+@import url(http://fonts.googleapis.com/css?family=Allura);
+
+@font-face {
+    font-family: 'tiquiTitleFont';
+    src: url("Highlands-Regular.ttf") format('truetype');
+}
+
+.tiquiTitle{
+	font-family: 'Allura', cursive;
+	font-weight: 800;
+	font-size: 6em;
+}
+
+#infoBox{
+	float:right;
+}
 
 .ujko-canvas {
 	fill: #A9CFFF;
