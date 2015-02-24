@@ -49,7 +49,7 @@ http://www.apache.org/licenses/LICENSE-2.0
       <div class="container">
         <div class="navbar-header">
 			<h1 class="tiquiTitle">Tiqui Mapa</h1>
-
+			<h3> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By <a href="https://twitter.com/esmitperez">@esmitperez</a></h3>
 			<div class="infoBox">
 	<p ng-show="codigo">
 		<span><strong>Provincia</strong>: {{provNombre}}</span>
@@ -62,13 +62,13 @@ http://www.apache.org/licenses/LICENSE-2.0
       </div>
     </nav>
 
-	<div class="container" style="padding:180px">
+	<div class="container" style="padding:200px">
 		<!--<span ng-include="'svg/bugs.svg'"></span>-->
 		<!---->
 		<input ng-model="distList" type="input" size="50">
 	<button ng-click="pintarMapa(getDistList())">Realzar</button>
 	<ul>
-		<li>Escriba una lista de códigos de provincia, cantón y/o distrinto, por ejemplo: 7,101,10901,5</li>
+		<li>Escriba una lista de códigos de provincia, cantón y/o distrito, por ejemplo: 7,101,10901,5</li>
 		<li>O dé click sobre el distrito deseado para crear la lista dinámicamente</li>
 	</ul>
 
